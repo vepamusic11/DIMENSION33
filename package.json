@@ -1,0 +1,21 @@
+{
+  "name": "dimension33",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Habitación isométrica en pixel-art para construir y recorrer desde PC y celular.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "npx --yes serve@14.2.4 -l 5173 .",
+    "test": "node --test \"tests/**/*.test.mjs\"",
+    "scan": "node tools/scan-secrets.mjs",
+    "check": "npm run scan && npm test",
+    "smoke": "node tools/smoke.mjs smoke-output",
+    "icons": "node tools/make-icons.mjs",
+    "preview": "node tools/render-demo.mjs docs",
+    "hooks": "git config core.hooksPath .githooks"
+  }
+}

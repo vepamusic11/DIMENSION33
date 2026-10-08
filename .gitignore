@@ -1,0 +1,48 @@
+# ── Secretos y credenciales: NUNCA al repo (es público) ──
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+*.jks
+id_rsa*
+id_ed25519*
+credentials*.json
+service-account*.json
+secrets.*
+*.secret
+
+# ── Archivos grandes / paquetes descargados (el ZIP de la ISO va a un repo PRIVADO) ──
+*.zip
+*.rar
+*.7z
+*.iso
+*.tar
+*.tar.gz
+*.tgz
+
+# ── Dependencias y builds ──
+node_modules/
+dist/
+build/
+.cache/
+coverage/
+smoke-output/
+_site/
+
+# ── Sistema / editores ──
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# ── Logs ──
+*.log
+npm-debug.log*
