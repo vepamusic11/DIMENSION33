@@ -1,0 +1,4 @@
+#!/bin/sh
+# Bloquea commits con secretos, emails personales o archivos grandes.
+# Activar una sola vez con:  npm run hooks   (o: git config core.hooksPath .githooks)
+node tools/scan-secrets.mjs --staged || exit 1

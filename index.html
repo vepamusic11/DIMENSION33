@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#1b1726">
+  <meta name="description" content="DIMENSION33 · Diseñá y recorré tu habitación isométrica en pixel-art, desde la PC o el celular.">
+  <title>DIMENSION33</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icons/icon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="assets/icons/icon-180.png">
+  <link rel="stylesheet" href="src/ui/styles.css">
+  <script type="module" src="src/main.js"></script>
+</head>
+<body>
+  <svg class="sprite" aria-hidden="true" focusable="false">
+    <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11" /></symbol>
+    <symbol id="i-redo" viewBox="0 0 24 24"><path d="m15 14 5-5-5-5M20 9H9.5a5.5 5.5 0 0 0 0 11H13" /></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" /></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></symbol>
+    <symbol id="i-sound" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5ZM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14" /></symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5ZM22 9l-6 6M16 9l6 6" /></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="12" cy="19" r="1.5" /></symbol>
+    <symbol id="i-rotate" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5" /></symbol>
+    <symbol id="i-color" viewBox="0 0 24 24"><path d="M12 22a10 10 0 1 1 10-10c0 2.8-2.2 4-4 4h-2a2 2 0 0 0-1.5 3.3A1.6 1.6 0 0 1 12 22Z" /><circle cx="7.5" cy="10.5" r="1" /><circle cx="12" cy="7" r="1" /><circle cx="16.5" cy="10.5" r="1" /></symbol>
+    <symbol id="i-move" viewBox="0 0 24 24"><path d="M5 9 2 12l3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20" /></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6" /></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2" /><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" /></symbol>
+    <symbol id="i-power" viewBox="0 0 24 24"><path d="M12 2v10M18.4 6.6a9 9 0 1 1-12.8 0" /></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12" /></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" /></symbol>
+    <symbol id="i-fit" viewBox="0 0 24 24"><path d="M3 9V3h6M21 9V3h-6M3 15v6h6M21 15v6h-6" /></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></symbol>
+  </svg>
+
+  <div class="app" id="app" data-mode="build">
+    <header class="topbar">
+      <div class="brand" aria-label="DIMENSION33">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-name">DIMENSION<b>33</b></span>
+      </div>
+
+      <div class="segmented" role="tablist" aria-label="Modo">
+        <button role="tab" id="tab-build" aria-selected="true" aria-controls="catalog" data-mode="build">Construir</button>
+        <button role="tab" id="tab-play" aria-selected="false" data-mode="play">Jugar</button>
+      </div>
+
+      <div class="tools">
+        <button class="icon-btn" id="btn-undo" aria-label="Deshacer (Ctrl+Z)" title="Deshacer (Ctrl+Z)"><svg><use href="#i-undo" /></svg></button>
+        <button class="icon-btn" id="btn-redo" aria-label="Rehacer (Ctrl+Shift+Z)" title="Rehacer (Ctrl+Shift+Z)"><svg><use href="#i-redo" /></svg></button>
+        <button class="icon-btn" id="btn-night" aria-label="Día / noche (N)" title="Día / noche (N)" aria-pressed="false"><svg><use href="#i-moon" /></svg></button>
+        <button class="icon-btn" id="btn-sound" aria-label="Sonido" title="Sonido" aria-pressed="false"><svg><use href="#i-mute" /></svg></button>
+        <div class="menu-wrap">
+          <button class="icon-btn" id="btn-menu" aria-label="Más opciones" aria-haspopup="menu" aria-expanded="false" aria-controls="menu"><svg><use href="#i-menu" /></svg></button>
+          <div class="menu" id="menu" role="menu" hidden>
+            <button role="menuitem" data-action="room">Habitación…</button>
+            <button role="menuitem" data-action="look">Cambiar personaje</button>
+            <button role="menuitem" data-action="grid">Mostrar cuadrícula</button>
+            <hr>
+            <button role="menuitem" data-action="share">Compartir link…</button>
+            <button role="menuitem" data-action="export">Exportar imagen PNG</button>
+            <hr>
+            <button role="menuitem" data-action="demo">Cargar habitación de ejemplo</button>
+            <button role="menuitem" data-action="new">Habitación vacía</button>
+            <hr>
+            <button role="menuitem" data-action="help">Ayuda y controles</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="stage" id="stage">
+      <canvas id="view" tabindex="0" role="application" aria-label="Habitación isométrica. Usá las flechas para mover la cámara o al personaje."></canvas>
+
+      <div class="hint" id="hint" aria-live="polite"></div>
+
+      <div class="zoom" role="group" aria-label="Zoom">
+        <button class="icon-btn small" id="btn-zoom-in" aria-label="Acercar (+)" title="Acercar (+)"><svg><use href="#i-plus" /></svg></button>
+        <button class="icon-btn small" id="btn-zoom-out" aria-label="Alejar (−)" title="Alejar (−)"><svg><use href="#i-minus" /></svg></button>
+        <button class="icon-btn small" id="btn-zoom-fit" aria-label="Encuadrar (0)" title="Encuadrar (0)"><svg><use href="#i-fit" /></svg></button>
+      </div>
+
+      <div class="floatbar" id="placebar" hidden role="toolbar" aria-label="Colocar objeto">
+        <span class="floatbar-title" id="place-name"></span>
+        <button class="icon-btn" data-place="rotate" aria-label="Rotar (R)" title="Rotar (R)"><svg><use href="#i-rotate" /></svg></button>
+        <button class="icon-btn" data-place="color" aria-label="Color (C)" title="Color (C)"><svg><use href="#i-color" /></svg></button>
+        <button class="icon-btn accent" data-place="ok" id="btn-place-ok" aria-label="Colocar" title="Colocar"><svg><use href="#i-check" /></svg></button>
+        <button class="icon-btn" data-place="cancel" aria-label="Cancelar (Esc)" title="Cancelar (Esc)"><svg><use href="#i-x" /></svg></button>
+      </div>
+
+      <div class="floatbar" id="selbar" hidden role="toolbar" aria-label="Objeto seleccionado">
+        <span class="floatbar-title" id="sel-name"></span>
+        <button class="icon-btn" data-sel="toggle" id="btn-sel-toggle" aria-label="Encender / apagar (E)" title="Encender / apagar (E)"><svg><use href="#i-power" /></svg></button>
+        <button class="icon-btn" data-sel="rotate" aria-label="Rotar (R)" title="Rotar (R)"><svg><use href="#i-rotate" /></svg></button>
+        <button class="icon-btn" data-sel="color" aria-label="Color (C)" title="Color (C)"><svg><use href="#i-color" /></svg></button>
+        <button class="icon-btn" data-sel="move" aria-label="Mover (M)" title="Mover (M)"><svg><use href="#i-move" /></svg></button>
+        <button class="icon-btn" data-sel="duplicate" aria-label="Duplicar (D)" title="Duplicar (D)"><svg><use href="#i-copy" /></svg></button>
+        <button class="icon-btn danger" data-sel="delete" aria-label="Eliminar (Supr)" title="Eliminar (Supr)"><svg><use href="#i-trash" /></svg></button>
+        <button class="icon-btn" data-sel="close" aria-label="Cerrar (Esc)" title="Cerrar (Esc)"><svg><use href="#i-x" /></svg></button>
+      </div>
+    </main>
+
+    <aside class="catalog" id="catalog" aria-label="Catálogo de objetos">
+      <button class="catalog-handle" id="catalog-handle" aria-expanded="true" aria-controls="catalog-body">
+        <span>Catálogo</span><svg><use href="#i-chevron" /></svg>
+      </button>
+      <div class="catalog-body" id="catalog-body">
+        <div class="tabs" role="tablist" aria-label="Categorías" id="cat-tabs"></div>
+        <div class="grid" id="cat-grid" role="listbox" aria-label="Objetos"></div>
+      </div>
+    </aside>
+  </div>
+
+  <dialog id="dlg-room" aria-labelledby="dlg-room-title">
+    <form method="dialog" class="dialog">
+      <h2 id="dlg-room-title">Habitación</h2>
+      <label class="field">Ancho <output id="out-w"></output>
+        <input type="range" id="in-w" min="4" max="16" step="1">
+      </label>
+      <label class="field">Profundidad <output id="out-d"></output>
+        <input type="range" id="in-d" min="4" max="16" step="1">
+      </label>
+      <fieldset class="field">
+        <legend>Color de paredes</legend>
+        <div class="swatches" id="sw-wall"></div>
+      </fieldset>
+      <fieldset class="field">
+        <legend>Piso</legend>
+        <div class="chips" id="floor-styles"></div>
+        <div class="swatches" id="sw-floor"></div>
+      </fieldset>
+      <div class="dialog-actions"><button class="btn primary" value="ok">Listo</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="dlg-share" aria-labelledby="dlg-share-title">
+    <form method="dialog" class="dialog">
+      <h2 id="dlg-share-title">Compartir</h2>
+      <p class="muted">Este link contiene tu habitación completa. No incluye datos personales.</p>
+      <input type="text" id="share-url" readonly aria-label="Link para compartir">
+      <div class="dialog-actions">
+        <button class="btn" type="button" id="btn-share-native" hidden>Compartir…</button>
+        <button class="btn primary" type="button" id="btn-share-copy">Copiar link</button>
+        <button class="btn" value="close">Cerrar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="dlg-help" aria-labelledby="dlg-help-title">
+    <form method="dialog" class="dialog wide">
+      <h2 id="dlg-help-title">Cómo se juega</h2>
+      <div class="help-cols">
+        <section>
+          <h3>Construir</h3>
+          <ul>
+            <li>Elegí un objeto del catálogo y tocá el piso o la pared.</li>
+            <li>En el celular: el primer toque previsualiza, el segundo (o ✓) coloca.</li>
+            <li>Tocá un objeto colocado para rotarlo, cambiarle el color, moverlo o borrarlo.</li>
+            <li>Los objetos chicos (velador, notebook, plantita…) se apoyan sobre mesas y muebles.</li>
+          </ul>
+          <h3>Jugar</h3>
+          <ul>
+            <li>Tocá el piso para caminar. Tocá sillas, sofás o la cama para sentarte.</li>
+            <li>Tocá lámparas, la tele o el tocadiscos para encenderlos. ¡Probalo de noche! 🌙</li>
+          </ul>
+        </section>
+        <section>
+          <h3>Teclado (PC)</h3>
+          <dl class="keys">
+            <dt><kbd>R</kbd></dt><dd>Rotar</dd>
+            <dt><kbd>C</kbd></dt><dd>Cambiar color</dd>
+            <dt><kbd>M</kbd> / <kbd>D</kbd></dt><dd>Mover / duplicar</dd>
+            <dt><kbd>E</kbd></dt><dd>Encender / apagar</dd>
+            <dt><kbd>Supr</kbd></dt><dd>Eliminar</dd>
+            <dt><kbd>Esc</kbd></dt><dd>Cancelar</dd>
+            <dt><kbd>Ctrl</kbd>+<kbd>Z</kbd></dt><dd>Deshacer</dd>
+            <dt><kbd>N</kbd> / <kbd>G</kbd></dt><dd>Noche / cuadrícula</dd>
+            <dt><kbd>B</kbd> / <kbd>P</kbd></dt><dd>Construir / jugar</dd>
+            <dt><kbd>←↑→↓</kbd> <kbd>WASD</kbd></dt><dd>Cámara o personaje</dd>
+            <dt><kbd>+</kbd> <kbd>−</kbd> <kbd>0</kbd></dt><dd>Zoom / encuadrar</dd>
+          </dl>
+          <h3>Mouse y touch</h3>
+          <ul>
+            <li>Arrastrar: mover la cámara · Rueda o pellizco: zoom.</li>
+            <li>Click derecho: cancelar.</li>
+          </ul>
+        </section>
+      </div>
+      <div class="dialog-actions"><button class="btn primary" value="ok">¡Entendido!</button></div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <noscript><p class="noscript">DIMENSION33 necesita JavaScript para funcionar.</p></noscript>
+</body>
+</html>
