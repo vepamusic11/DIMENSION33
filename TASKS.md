@@ -33,6 +33,6 @@ Orden de ejecución. Marcá `[x]` al completar y mové lo nuevo al bloque que co
 - [ ] Más objetos: baño, estudio de música (consola, micrófono, monitores), plantas colgantes
 - [ ] Editor de colores libre para paredes y piso
 - [ ] Mascota que deambula sola
-- [ ] Paredes con papel tapiz / ladrillo
+- [x] Paredes con estilo: rayas, ladrillo, boiserie y azulejos (viajan en el link, compatibles con links viejos)
 - [ ] Modo "foto" con marco y exportación para redes
 - [ ] Logros / objetivos en modo jugar

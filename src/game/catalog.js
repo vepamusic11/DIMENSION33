@@ -549,6 +549,14 @@ export const ITEMS_BY_KEY = new Map(ITEMS.map((d) => [d.key, d]));
 
 export const WALL_COLORS = ['#e8dcc6', '#c9d6c3', '#c7d3e0', '#e6c7c2', '#d9d2e9', '#f2efe9', '#5b6b73', '#3b3346'];
 export const FLOOR_COLORS = ['#b07a4f', '#d4a373', '#7f5539', '#c9c2b5', '#8fa3ad', '#6d5d6e', '#d8cfc0', '#4b3a2f'];
+// Índices guardados en los links: agregar al final, nunca reordenar.
+export const WALL_STYLES = [
+  { key: 'plain', name: 'Lisa' },
+  { key: 'stripes', name: 'Rayas' },
+  { key: 'brick', name: 'Ladrillo' },
+  { key: 'wainscot', name: 'Boiserie' },
+  { key: 'tiles', name: 'Azulejos' },
+];
 export const FLOOR_STYLES = [
   { key: 'planks', name: 'Madera' },
   { key: 'tiles', name: 'Baldosas' },

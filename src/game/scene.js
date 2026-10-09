@@ -2,9 +2,9 @@
 // ordenados, iluminación nocturna, resaltados y previsualización.
 import { HW, HH, UNIT_Z, WALL_H, WALL_T, SLAB, ID_FLOOR, ID_WALL_L, ID_WALL_R, ID_AVATAR } from '../engine/config.js';
 import { proj, flatPoly, boxPolys, drawBox, drawBoxGhost, sortBoxes } from '../engine/iso.js';
-import { hexToRgb, packRgb, packHex } from '../engine/color.js';
-import { WALL_COLORS, FLOOR_COLORS, FLOOR_STYLES, footprintSize, rotateBox, boxColor } from './catalog.js';
-import { defOf, surfaceAt, cellsOf, SIDE_L } from './room.js';
+import { hexToRgb, packRgb, packHex, faceColors } from '../engine/color.js';
+import { WALL_COLORS, WALL_STYLES, FLOOR_COLORS, FLOOR_STYLES, footprintSize, rotateBox, boxColor } from './catalog.js';
+import { defOf, surfaceAt, cellsOf, SIDE_L, SIDE_R } from './room.js';
 import { avatarBoxes } from './avatar.js';
 
 const SLAB_HEX = '#5e4535';
@@ -85,6 +85,71 @@ export function itemAnchor(room, item, index, z = null) {
   return { x: item.x + fp.w / 2, y: item.y + fp.d / 2, z: zBase + (z ?? top) };
 }
 
+const toHex = (rgb) => '#' + rgb.map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('');
+const shadeHex = (hex, f) => toHex(scaleRgb(hexToRgb(hex), f));
+const towards = (hex, target, t) => {
+  const c = hexToRgb(hex);
+  return toHex(c.map((v, i) => v + (target[i] - v) * t));
+};
+
+/** Cuadrilátero en pantalla sobre la cara interior de una pared (u a lo largo, z hacia arriba). */
+function wallQuad(o, side, u0, u1, z0, z1) {
+  return side === SIDE_L
+    ? [...proj(o, 0, u0, z0), ...proj(o, 0, u1, z0), ...proj(o, 0, u1, z1), ...proj(o, 0, u0, z1)]
+    : [...proj(o, u0, 0, z0), ...proj(o, u1, 0, z0), ...proj(o, u1, 0, z1), ...proj(o, u0, 0, z1)];
+}
+
+/**
+ * Patrón de la cara interior de cada pared. Cada tono pasa por faceColors para
+ * respetar la luz de la escena: la pared izquierda (plano x = 0) es una cara
+ * "derecha" (en sombra) y la pared derecha (plano y = 0) es una cara "izquierda".
+ */
+function drawWallStyle(r, o, room, wallHex) {
+  const style = WALL_STYLES[room.wallStyle]?.key || 'plain';
+  if (style === 'plain') return;
+  const PX = 1 / 16; // 1 píxel en u (HW = 16) y en z (UNIT_Z = 16)
+  for (const side of [SIDE_L, SIDE_R]) {
+    const len = side === SIDE_L ? room.d : room.w;
+    const id = side === SIDE_L ? ID_WALL_L : ID_WALL_R;
+    const face = (hex) => (side === SIDE_L ? faceColors(hex).right : faceColors(hex).left);
+    const quad = (u0, u1, z0, z1, hex) => r.fill(wallQuad(o, side, u0, u1, z0, z1), face(hex), id);
+
+    if (style === 'stripes') {
+      const alt = shadeHex(wallHex, 0.9);
+      for (let u = 0.25; u < len; u += 0.5) quad(u, Math.min(len, u + 0.25), 0, WALL_H, alt);
+      // Guarda superior
+      quad(0, len, WALL_H - 0.3, WALL_H - 0.3 + 2 * PX, shadeHex(wallHex, 0.78));
+    } else if (style === 'brick') {
+      quad(0, len, 0, WALL_H, towards(wallHex, [236, 230, 220], 0.45)); // junta
+      const rowH = 0.25;
+      for (let row = 0; row * rowH < WALL_H; row++) {
+        const z0 = row * rowH + PX;
+        const z1 = Math.min(WALL_H, (row + 1) * rowH);
+        const off = row % 2 ? 0.25 : 0;
+        for (let u = -off, k = 0; u < len; u += 0.5, k++) {
+          const f = [0.86, 0.92, 0.8, 0.95, 0.88][hash2(k + side * 97, row) % 5];
+          quad(Math.max(0, u + PX), Math.min(len, u + 0.5), z0, z1, shadeHex(wallHex, f));
+        }
+      }
+    } else if (style === 'wainscot') {
+      const top = 1.0;
+      const panel = shadeHex(wallHex, 0.82);
+      quad(0, len, 0, top, shadeHex(wallHex, 0.7));
+      for (let u = 0; u < len; u += 0.5) quad(u + 2 * PX, Math.min(len, u + 0.5) - 2 * PX, 0.22, top - 0.14, panel);
+      quad(0, len, top - 2 * PX, top + 2 * PX, shadeHex(wallHex, 1.08)); // moldura
+    } else if (style === 'tiles') {
+      const size = 0.375;
+      quad(0, len, 0, WALL_H, towards(wallHex, [255, 255, 255], 0.5)); // pastina
+      for (let row = 0; row * size < WALL_H; row++) {
+        for (let col = 0; col * size < len; col++) {
+          const f = (row + col) % 2 ? 0.94 : 1.02;
+          quad(col * size + PX, Math.min(len, (col + 1) * size), row * size + PX, Math.min(WALL_H, (row + 1) * size), shadeHex(wallHex, f));
+        }
+      }
+    }
+  }
+}
+
 function drawFloor(r, o, room) {
   const base = hexToRgb(FLOOR_COLORS[room.floor]);
   const style = FLOOR_STYLES[room.floorStyle].key;
@@ -136,6 +201,7 @@ export function renderScene(r, room, layout, opts = {}) {
   // ── Estructura ──
   drawBox(r, o, { x0: -WALL_T, y0: -WALL_T, z0: -SLAB, x1: 0, y1: room.d, z1: WALL_H, c: wallHex, id: ID_WALL_L });
   drawBox(r, o, { x0: 0, y0: -WALL_T, z0: -SLAB, x1: room.w, y1: 0, z1: WALL_H, c: wallHex, id: ID_WALL_R });
+  drawWallStyle(r, o, room, wallHex);
   drawBox(r, o, { x0: 0, y0: 0, z0: -SLAB, x1: room.w, y1: room.d, z1: 0, c: SLAB_HEX, id: ID_FLOOR });
   drawFloor(r, o, room);
 
@@ -146,7 +212,7 @@ export function renderScene(r, room, layout, opts = {}) {
   r.mul(flatPoly(o, 0.3, 0, room.w, 0.3), [0.9, 0.9, 0.94], (id) => id === ID_FLOOR);
 
   // Zócalos
-  const skirt = '#' + [...hexToRgb(wallHex)].map((v) => Math.round(v * 0.62).toString(16).padStart(2, '0')).join('');
+  const skirt = shadeHex(wallHex, 0.62);
   drawBox(r, o, { x0: 0, y0: 0, z0: 0, x1: 0.05, y1: room.d, z1: 0.16, c: skirt, id: ID_WALL_L });
   drawBox(r, o, { x0: 0.05, y0: 0, z0: 0, x1: room.w, y1: 0.05, z1: 0.16, c: skirt, id: ID_WALL_R });
 
@@ -249,14 +315,7 @@ function drawGhost(r, o, room, ghost) {
   const mark = valid ? OK_HEX : BAD_HEX;
   if (def.layer === 'wall') {
     const z0 = item.z / 4;
-    const z1 = z0 + def.h;
-    const u0 = item.x;
-    const u1 = item.x + def.w;
-    const poly =
-      item.s === SIDE_L
-        ? [...proj(o, 0, u0, z0), ...proj(o, 0, u1, z0), ...proj(o, 0, u1, z1), ...proj(o, 0, u0, z1)]
-        : [...proj(o, u0, 0, z0), ...proj(o, u1, 0, z0), ...proj(o, u1, 0, z1), ...proj(o, u0, 0, z1)];
-    r.mix(poly, mark, 0.3);
+    r.mix(wallQuad(o, item.s, item.x, item.x + def.w, z0, z0 + def.h), mark, 0.3);
   } else {
     const c = cellsOf(item);
     const z = def.layer === 'deco' ? Math.max(0, surfaceAt(room, item.x, item.y)) : 0;
