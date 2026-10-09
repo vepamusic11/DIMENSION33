@@ -1,7 +1,7 @@
 // Service worker: permite jugar sin conexión e instalar como app.
 // Estrategia: "stale-while-revalidate" para archivos propios (rápido y se actualiza solo).
 // Subí CACHE_VERSION en cada release que cambie archivos de la lista.
-const CACHE_VERSION = 'd33-v1';
+const CACHE_VERSION = 'd33-v2';
 const SHELL = [
   './',
   './index.html',
