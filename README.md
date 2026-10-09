@@ -9,7 +9,7 @@ Sin instalaciones, sin cuentas y sin rastreo: todo corre en el navegador.
 
 ## Qué se puede hacer
 
-- **Construir**: 41 objetos (muebles, cocina, deco, música, alfombras y pared) con rotación, colores y apilado sobre mesas.
+- **Construir**: 41 objetos (muebles, cocina, deco, música, alfombras y pared) con rotación, colores y apilado sobre mesas. Paredes lisas, a rayas, de ladrillo, con boiserie o azulejos.
 - **Jugar**: caminá por la habitación, sentate, prendé lámparas, la tele o el tocadiscos (con música lo-fi generativa 🎶).
 - **Día y noche** con iluminación dinámica.
 - **Compartir**: la habitación completa viaja en el link (`#r=…`). Se guarda sola en tu navegador.

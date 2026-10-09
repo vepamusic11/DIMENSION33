@@ -1,7 +1,7 @@
 // Modelo de la habitación: datos puros + reglas de colocación + (de)serialización.
 // No toca el DOM, así se testea en Node.
 import { ROOM_MIN, ROOM_MAX, MAX_ITEMS, HASH_MAX, WALL_H } from '../engine/config.js';
-import { ITEMS_BY_ID, footprintSize, WALL_COLORS, FLOOR_COLORS, FLOOR_STYLES } from './catalog.js';
+import { ITEMS_BY_ID, footprintSize, WALL_COLORS, WALL_STYLES, FLOOR_COLORS, FLOOR_STYLES } from './catalog.js';
 
 const FORMAT_VERSION = 1;
 const SIDE_L = 0; // pared sobre el plano x = 0 (corre a lo largo de y)
@@ -9,7 +9,7 @@ const SIDE_R = 1; // pared sobre el plano y = 0 (corre a lo largo de x)
 export { SIDE_L, SIDE_R };
 
 export function createRoom(w = 9, d = 9) {
-  return { w, d, wall: 0, floorStyle: 0, floor: 0, items: [] };
+  return { w, d, wall: 0, wallStyle: 0, floorStyle: 0, floor: 0, items: [] };
 }
 
 /**
@@ -136,12 +136,14 @@ const clampInt = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.round(Number(v) |
 // ─────────────────────────── Serialización ───────────────────────────
 // Formato binario compacto → base64url. Cabecera de 7 bytes + 5 bytes por item.
 //   [ver, w, d, wall, floorStyle, floor, count] + count × [t, x, y, flags, z]
+//   wall = color (4 bits) | estilo << 4 (4 bits). Los links anteriores al estilo
+//   tienen estilo 0 (lisa), así que siguen funcionando igual.
 //   flags = r (2 bits) | v << 2 (3 bits) | s << 5 (1 bit) | on << 6 (1 bit)
 
 export function encodeRoom(room) {
   const n = Math.min(room.items.length, MAX_ITEMS);
   const bytes = new Uint8Array(7 + n * 5);
-  bytes.set([FORMAT_VERSION, room.w, room.d, room.wall, room.floorStyle, room.floor, n]);
+  bytes.set([FORMAT_VERSION, room.w, room.d, (room.wall & 15) | ((room.wallStyle & 15) << 4), room.floorStyle, room.floor, n]);
   for (let i = 0; i < n; i++) {
     const it = room.items[i];
     const o = 7 + i * 5;
@@ -165,13 +167,16 @@ export function decodeRoom(str) {
     if (!/^[A-Za-z0-9_-]+$/.test(str)) return null;
     const bytes = fromBase64Url(str);
     if (bytes.length < 7 || bytes[0] !== FORMAT_VERSION) return null;
-    const [, w, d, wall, floorStyle, floor, count] = bytes;
+    const [, w, d, wallByte, floorStyle, floor, count] = bytes;
+    const wall = wallByte & 15;
+    const wallStyle = wallByte >> 4;
     if (w < ROOM_MIN || w > ROOM_MAX || d < ROOM_MIN || d > ROOM_MAX) return null;
     if (count > MAX_ITEMS || bytes.length < 7 + count * 5) return null;
     const room = {
       w,
       d,
       wall: wall < WALL_COLORS.length ? wall : 0,
+      wallStyle: wallStyle < WALL_STYLES.length ? wallStyle : 0,
       floorStyle: floorStyle < FLOOR_STYLES.length ? floorStyle : 0,
       floor: floor < FLOOR_COLORS.length ? floor : 0,
       items: [],

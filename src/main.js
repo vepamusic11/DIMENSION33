@@ -1,6 +1,6 @@
 // Punto de entrada: conecta el DOM con App.
 import { App } from './app.js';
-import { CATEGORIES, ITEMS, WALL_COLORS, FLOOR_COLORS, FLOOR_STYLES } from './game/catalog.js';
+import { CATEGORIES, ITEMS, WALL_COLORS, WALL_STYLES, FLOOR_COLORS, FLOOR_STYLES } from './game/catalog.js';
 import { defOf } from './game/room.js';
 import { renderThumb } from './game/scene.js';
 import { Raster } from './engine/raster.js';
@@ -369,21 +369,25 @@ function syncRoomDialog() {
   $('#out-w').textContent = r.w;
   $('#in-d').value = r.d;
   $('#out-d').textContent = r.d;
-  swatchRow($('#sw-wall'), WALL_COLORS, r.wall, (i) => app.setRoomProp('wall', i), 'Pared');
-  swatchRow($('#sw-floor'), FLOOR_COLORS, r.floor, (i) => app.setRoomProp('floor', i), 'Piso');
-  const fs = $('#floor-styles');
-  fs.replaceChildren();
-  fs.setAttribute('role', 'radiogroup');
-  fs.setAttribute('aria-label', 'Tipo de piso');
-  FLOOR_STYLES.forEach((s, i) => {
+  chipRow($('#wall-styles'), WALL_STYLES, r.wallStyle, (i) => app.setRoomProp('wallStyle', i), 'Estilo de paredes');
+  swatchRow($('#sw-wall'), WALL_COLORS, r.wall, (i) => app.setRoomProp('wall', i), 'Color de pared');
+  chipRow($('#floor-styles'), FLOOR_STYLES, r.floorStyle, (i) => app.setRoomProp('floorStyle', i), 'Tipo de piso');
+  swatchRow($('#sw-floor'), FLOOR_COLORS, r.floor, (i) => app.setRoomProp('floor', i), 'Color de piso');
+}
+
+function chipRow(el, options, current, onPick, label) {
+  el.replaceChildren();
+  el.setAttribute('role', 'radiogroup');
+  el.setAttribute('aria-label', label);
+  options.forEach((opt, i) => {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'chip';
-    b.textContent = s.name;
+    b.textContent = opt.name;
     b.setAttribute('role', 'radio');
-    b.setAttribute('aria-checked', String(i === r.floorStyle));
-    b.addEventListener('click', () => app.setRoomProp('floorStyle', i));
-    fs.append(b);
+    b.setAttribute('aria-checked', String(i === current));
+    b.addEventListener('click', () => onPick(i));
+    el.append(b);
   });
 }
 for (const [id, prop] of [['#in-w', 'w'], ['#in-d', 'd']]) {

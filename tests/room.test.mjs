@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRoom, makeItem, canPlace, encodeRoom, decodeRoom, resizeRoom, blockedGrid, surfaceAt, SIDE_L, SIDE_R, toBase64Url, fromBase64Url } from '../src/game/room.js';
-import { ITEMS_BY_KEY } from '../src/game/catalog.js';
+import { ITEMS_BY_KEY, WALL_STYLES } from '../src/game/catalog.js';
 import { demoRoom } from '../src/game/demo.js';
 
 const def = (k) => ITEMS_BY_KEY.get(k);
@@ -94,4 +94,29 @@ test('blockedGrid marca muebles y deco del piso, no alfombras ni paredes', () =>
   place(room, 'window', { x: 0, s: SIDE_R, z: 4 });
   const g = blockedGrid(room);
   assert.deepEqual([...g], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1]);
+});
+
+test('el estilo de pared viaja en el link junto al color', () => {
+  for (let style = 0; style < WALL_STYLES.length; style++) {
+    const room = createRoom(6, 7);
+    room.wall = 7;
+    room.wallStyle = style;
+    const back = decodeRoom(encodeRoom(room));
+    assert.equal(back.wall, 7);
+    assert.equal(back.wallStyle, style);
+  }
+});
+
+test('los links anteriores al estilo de pared se abren con pared lisa', () => {
+  // Cabecera v1 tal como la generaba la primera versión: wall = 5, sin estilo
+  const room = decodeRoom(toBase64Url(Uint8Array.from([1, 8, 8, 5, 1, 2, 0])));
+  assert.equal(room.wall, 5);
+  assert.equal(room.wallStyle, 0);
+  assert.equal(room.floorStyle, 1);
+});
+
+test('un estilo o color de pared fuera de rango vuelve al valor por defecto', () => {
+  const room = decodeRoom(toBase64Url(Uint8Array.from([1, 8, 8, 0xff, 0, 0, 0])));
+  assert.equal(room.wall, 0);
+  assert.equal(room.wallStyle, 0);
 });

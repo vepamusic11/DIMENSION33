@@ -885,6 +885,7 @@ export class App {
   newRoom() {
     const r = createRoom(this.room.w, this.room.d);
     r.wall = this.room.wall;
+    r.wallStyle = this.room.wallStyle;
     r.floor = this.room.floor;
     r.floorStyle = this.room.floorStyle;
     this.setRoom(r);
